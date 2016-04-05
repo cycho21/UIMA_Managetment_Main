@@ -24,7 +24,11 @@ public class TaskDistributorCore {
 	 */
 	public ActiveMQManager getActiveMQManager() {
 		if(activemqManager==null) {
-			activemqManager = new ActiveMQManager();
+			activemqManager = new ActiveMQManager() {
+                @Override
+                public void init() {
+                }
+            };
 		}
 		return activemqManager;
 	}

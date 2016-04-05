@@ -16,7 +16,7 @@ import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import java.io.File;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * @author Chan Yeon, Cho
@@ -194,13 +194,13 @@ public class RequestHandler {
     public void connect(Message message) {
         try {
             String ip = (String) message.getObjectProperty("text");
-            AnnotatorRunningInfo.getAnnotatorList().put(ip, ip);
+            AnnotatorRunningInfo.getAnnotatorList().add(ip);
         } catch (JMSException e) {
             e.printStackTrace();
         }
     }
 
     public void getNodeInfo(Message message) {
-        HashMap<String, String> nodeList = AnnotatorRunningInfo.getNodeList();
+        ArrayList<String> nodeList = AnnotatorRunningInfo.getNodeList();
     }
 }

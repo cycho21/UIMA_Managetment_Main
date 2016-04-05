@@ -6,8 +6,6 @@ import kr.ac.uos.ai.annotator.bean.protocol.MsgType;
 import kr.ac.uos.ai.annotator.monitor.AnnotatorRunningInfo;
 import kr.ac.uos.ai.annotator.monitor.JobList;
 import lombok.Data;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -29,7 +27,6 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     private AnnotatorRunningInfo annotatorList;
     private Sender_Impl sdr;
     private UnifiedBuilder_Impl builder;
-    private Logger logger = LogManager.getLogger(RequestAnalyst_Impl.class);
 
     public RequestAnalyst_Impl() {
     }
@@ -86,11 +83,9 @@ class RequestAnalyst_Impl implements RequestAnalyst {
             process = builder.makeFile(bytes, bMsg);
 
             if(process) {
-                logger.info("Add Input File Seq OK");
             }
 
         } catch (JMSException e) {
-                logger.info("Add Input File Seq Error " + e.toString());
         }
     }
 

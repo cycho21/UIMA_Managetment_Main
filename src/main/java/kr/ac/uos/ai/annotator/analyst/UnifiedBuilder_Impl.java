@@ -5,8 +5,6 @@ import kr.ac.uos.ai.annotator.bean.protocol.Job;
 import kr.ac.uos.ai.annotator.bean.protocol.MsgType;
 import kr.ac.uos.ai.annotator.bean.protocol.Protocol;
 import kr.ac.uos.ai.annotator.taskarchiver.TaskUnpacker;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -20,7 +18,6 @@ import javax.jms.Message;
 
 public class UnifiedBuilder_Impl implements UnifiedBuilder {
 
-    private Logger logger = LogManager.getLogger(UnifiedBuilder_Impl.class);
     private TaskUnpacker taskUnpacker;
 
     public UnifiedBuilder_Impl() {
@@ -34,7 +31,6 @@ public class UnifiedBuilder_Impl implements UnifiedBuilder {
 
         try {
             String fullPath = path + msg.getObjectProperty("fileName");
-            logger.info("Make File Path : " + fullPath);
             taskUnpacker.makeFileFromByteArray(path, fullPath, bytes);
             tempBool = true;
         } catch (JMSException e) {

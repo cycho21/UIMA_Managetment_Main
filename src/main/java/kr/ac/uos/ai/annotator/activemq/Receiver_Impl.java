@@ -4,8 +4,6 @@ import kr.ac.uos.ai.annotator.activemq.interfaces.Receiver;
 import kr.ac.uos.ai.annotator.analyst.RequestAnalyst2;
 import lombok.Data;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.jms.*;
 
@@ -26,7 +24,6 @@ public @Data class Receiver_Impl implements Runnable, Receiver {
     private Queue queue;
     private Session session;
     private Connection connection;
-    private Logger logger = LogManager.getLogger(Receiver_Impl.class);
 
     public Receiver_Impl() {
 
@@ -36,6 +33,7 @@ public @Data class Receiver_Impl implements Runnable, Receiver {
         try {
             message = consumer.receive();
             requestAnalyst.analysis(message);
+            System.out.println(message);
         } catch (JMSException e) {
             e.printStackTrace();
         }

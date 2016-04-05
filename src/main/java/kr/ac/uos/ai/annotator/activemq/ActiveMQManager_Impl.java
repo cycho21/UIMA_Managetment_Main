@@ -2,8 +2,6 @@ package kr.ac.uos.ai.annotator.activemq;
 
 import kr.ac.uos.ai.annotator.analyst.RequestAnalyst2;
 import kr.ac.uos.ai.annotator.monitor.AnnotatorRunningInfo;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * @author Chan Yeon, Cho
@@ -19,7 +17,6 @@ public class ActiveMQManager_Impl {
     private NodeSender nodeSender;
     private ClientSender csdr;
     private AnnotatorRunningInfo annotatorRunningInfo;
-    private Logger logger = LogManager.getLogger(ActiveMQManager_Impl.class);
 
     public ActiveMQManager_Impl() {
     }
