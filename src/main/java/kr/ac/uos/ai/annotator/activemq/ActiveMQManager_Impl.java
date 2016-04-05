@@ -14,12 +14,10 @@ import org.apache.logging.log4j.Logger;
 
 public class ActiveMQManager_Impl {
 
-    private ClientReceiver clientReceiver;
     private RequestAnalyst2 requestAnalyst;
     private String serverIP;
     private NodeSender nodeSender;
     private ClientSender csdr;
-    private NodeReceiver nreceiver;
     private AnnotatorRunningInfo annotatorRunningInfo;
     private Logger logger = LogManager.getLogger(ActiveMQManager_Impl.class);
 

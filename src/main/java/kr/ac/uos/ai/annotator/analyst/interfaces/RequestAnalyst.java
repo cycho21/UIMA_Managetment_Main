@@ -1,8 +1,5 @@
 package kr.ac.uos.ai.annotator.analyst.interfaces;
 
-import kr.ac.uos.ai.annotator.bean.protocol.Job;
-import kr.ac.uos.ai.annotator.bean.protocol.Protocol;
-
 import javax.jms.Message;
 
 /**
@@ -15,15 +12,26 @@ import javax.jms.Message;
 public interface RequestAnalyst {
 
     void init();
+
     void analysis(Message msg);
+
     void getNodeInfo(Message msg);
+
     void connect(Message msg);
+
     void getJobList(Message msg);
+
     void requestJob(Message msg);
+
     void upLoad(Message msg);
+
     void sendJob(Message msg);
+
     void jobListCheck(Message msg);
-    Job makeJob(Message msg);
-    Protocol makeProtocol(Message msg);
+
+    void addJob(Message msg);
+
+    void addInputFile(Message msg);
+
 
 }

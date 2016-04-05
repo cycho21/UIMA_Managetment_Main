@@ -2,13 +2,14 @@ package kr.ac.uos.ai.annotator.analyst;
 
 import kr.ac.uos.ai.annotator.activemq.Sender_Impl;
 import kr.ac.uos.ai.annotator.analyst.interfaces.RequestAnalyst;
-import kr.ac.uos.ai.annotator.bean.protocol.Job;
 import kr.ac.uos.ai.annotator.bean.protocol.MsgType;
-import kr.ac.uos.ai.annotator.bean.protocol.Protocol;
 import kr.ac.uos.ai.annotator.monitor.AnnotatorRunningInfo;
 import kr.ac.uos.ai.annotator.monitor.JobList;
 import lombok.Data;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 
@@ -19,13 +20,16 @@ import javax.jms.Message;
  * @link http://ai.uos.ac.kr:9000/lovebube/UIMA_Management_Client
  */
 
-public @Data
+public
+@Data
 class RequestAnalyst_Impl implements RequestAnalyst {
 
     private JobList taskUnpacker;
     private boolean anootatorIsRun;
     private AnnotatorRunningInfo annotatorList;
     private Sender_Impl sdr;
+    private UnifiedBuilder_Impl builder;
+    private Logger logger = LogManager.getLogger(RequestAnalyst_Impl.class);
 
     public RequestAnalyst_Impl() {
     }
@@ -42,6 +46,12 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         }
 
         switch (MsgType.valueOf(msgType)) {
+            case JOB:
+                addJob(message);
+                break;
+            case INPUTFILE:
+                addInputFile(message);
+                break;
             case GETNODEINFO:
                 getNodeInfo(message);
                 break;
@@ -64,6 +74,29 @@ class RequestAnalyst_Impl implements RequestAnalyst {
                 /* doNothing */
                 break;
         }
+    }
+
+    @Override
+    public void addInputFile(Message msg) {
+        BytesMessage bMsg = (BytesMessage) msg;
+        boolean process = false;
+        try {
+            byte[] bytes = new byte[(int) bMsg.getBodyLength()];
+            bMsg.readBytes(bytes);
+            process = builder.makeFile(bytes, bMsg);
+
+            if(process) {
+                logger.info("Add Input File Seq OK");
+            }
+
+        } catch (JMSException e) {
+                logger.info("Add Input File Seq Error " + e.toString());
+        }
+    }
+
+    @Override
+    public void addJob(Message msg) {
+
     }
 
     @Override
@@ -106,38 +139,13 @@ class RequestAnalyst_Impl implements RequestAnalyst {
 
     }
 
-    @Override
-    public Job makeJob(Message msg) {
-        Job job = new Job();
-        try {
-            job.setModifiedDate(msg.getObjectProperty("modifiedDate").toString());
-            job.setDeveloper(msg.getObjectProperty("developer").toString());
-            job.setJobName(msg.getObjectProperty("jobName").toString());
-            job.setFileName(msg.getObjectProperty("jobFileName").toString());
-            job.setVersion(msg.getObjectProperty("version").toString());
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
-        return job;
-    }
-
-    @Override
-    public Protocol makeProtocol(Message msg) {
-        Protocol protocol = new Protocol();
-        protocol.setJob(makeJob(msg));
-        try {
-            protocol.setMsgType(MsgType.valueOf(msg.getObjectProperty("msgType").toString().toUpperCase()));
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
-        return protocol;
-    }
 
     @Override
     public void init() {
         sdr = new Sender_Impl();
         sdr.init();
         sdr.createQueue("main2client");
+        builder = new UnifiedBuilder_Impl();
         taskUnpacker = JobList.getInstance();
         annotatorList = AnnotatorRunningInfo.getInstance();
         anootatorIsRun = false;

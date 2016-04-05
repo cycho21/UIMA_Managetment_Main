@@ -81,11 +81,6 @@ public class Sender_Impl implements Sender {
     }
 
     @Override
-    public void broadcastMessage(String msgType, String msgTxt, Job job, byte[] byteFromFile) {
-
-    }
-
-    @Override
     public void logMessage(String type, String message) {
 
     }

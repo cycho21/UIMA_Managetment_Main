@@ -14,7 +14,6 @@ public interface Sender {
     void set();
     void init();
     void sendMessage(String msgType, String msgTxt, Job job, byte[] byteFromFile);
-    void broadcastMessage(String msgType, String msgTxt, Job job, byte[] byteFromFile);
     void logMessage(String type, String message);
     String switchMessage(String msgType, String msgTxt, Job job, byte[] byteFromFile);
 
