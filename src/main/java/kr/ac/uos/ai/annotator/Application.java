@@ -35,7 +35,7 @@ public class Application {
         sdr.createQueue("main2node");
         csdr.createQueue("main2client");
         activemqManager.setSender(sdr, csdr);
-        activemqManager.init("client2main");
+        activemqManager.init("main");
         System.out.println("Main Management Starting...");
     }
 

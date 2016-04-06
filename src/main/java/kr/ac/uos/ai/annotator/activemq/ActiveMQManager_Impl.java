@@ -27,7 +27,8 @@ public class ActiveMQManager_Impl {
         requestAnalyst.setSender(nodeSender, csdr);
 
         receiver = new Receiver_Impl();
-
+        receiver.setQueueName(queueName);
+        receiver.init();
         Thread receiverThread = new Thread(receiver);
         receiverThread.start();
     }

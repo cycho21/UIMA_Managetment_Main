@@ -2,6 +2,8 @@ package kr.ac.uos.ai.annotator.activemq;
 
 import kr.ac.uos.ai.annotator.activemq.interfaces.Receiver;
 import kr.ac.uos.ai.annotator.analyst.RequestAnalyst2;
+import kr.ac.uos.ai.annotator.analyst.RequestAnalyst_Impl;
+import kr.ac.uos.ai.annotator.analyst.interfaces.RequestAnalyst;
 import lombok.Data;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
@@ -16,17 +18,17 @@ import javax.jms.*;
 
 public @Data class Receiver_Impl implements Runnable, Receiver {
 
+    private RequestAnalyst_Impl requestAnalyst;
     private String queueName;
     private ActiveMQConnectionFactory factory;
     private MessageConsumer consumer;
     private Message message;
-    private RequestAnalyst2 requestAnalyst;
     private Queue queue;
     private Session session;
     private Connection connection;
 
     public Receiver_Impl() {
-
+            requestAnalyst = new RequestAnalyst_Impl();
     }
 
     public void consume() {
