@@ -28,7 +28,6 @@ public class UnifiedBuilder_Impl implements UnifiedBuilder {
         boolean tempBool = false;
         String path = null;
         path = System.getProperty("user.dir") + "/inputFile/";
-
         try {
             String fullPath = path + msg.getObjectProperty("fileName");
             taskUnpacker.makeFileFromByteArray(path, fullPath, bytes);

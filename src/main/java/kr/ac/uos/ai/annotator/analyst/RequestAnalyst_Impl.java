@@ -1,5 +1,6 @@
 package kr.ac.uos.ai.annotator.analyst;
 
+import kr.ac.uos.ai.annotator.activemq.BroadCaster_Impl;
 import kr.ac.uos.ai.annotator.activemq.Sender_Impl;
 import kr.ac.uos.ai.annotator.analyst.interfaces.RequestAnalyst;
 import kr.ac.uos.ai.annotator.bean.protocol.MsgType;
@@ -27,6 +28,7 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     private AnnotatorRunningInfo annotatorList;
     private Sender_Impl sdr;
     private UnifiedBuilder_Impl builder;
+    private BroadCaster_Impl broadcaster;
 
     public RequestAnalyst_Impl() {
     }
@@ -96,7 +98,7 @@ class RequestAnalyst_Impl implements RequestAnalyst {
 
     @Override
     public void getNodeInfo(Message msg) {
-
+        broadcaster.sendGetNodeMessage();
     }
 
     @Override
@@ -139,7 +141,9 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     public void init() {
         sdr = new Sender_Impl();
         sdr.init();
-        sdr.createQueue("main2client");
+        sdr.createQueue("client");
+        broadcaster = new BroadCaster_Impl("taskTopic");
+        broadcaster.init();
         builder = new UnifiedBuilder_Impl();
         taskUnpacker = JobList.getInstance();
         annotatorList = AnnotatorRunningInfo.getInstance();

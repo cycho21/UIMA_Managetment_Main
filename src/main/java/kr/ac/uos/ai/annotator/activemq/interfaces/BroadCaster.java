@@ -14,4 +14,5 @@ public interface BroadCaster {
     void sendMessage(byte[] msg, String fileName, Protocol protocol); // send Byte Message
     void sendMessage(String message); // Simple Text Message
     void sendMessage(String runAnnotator, String annoFileName);
+    void sendGetNodeMessage();
 }

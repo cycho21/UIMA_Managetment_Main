@@ -54,6 +54,7 @@ public class RequestAnalyst2 {
         } catch (JMSException e) {
             e.printStackTrace();
         }
+
         System.out.println(MsgType.valueOf(msgType));
         switch (MsgType.valueOf(msgType)) {
             case GETNODEINFO:

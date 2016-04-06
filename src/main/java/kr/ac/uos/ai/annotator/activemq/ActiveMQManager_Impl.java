@@ -16,34 +16,20 @@ public class ActiveMQManager_Impl {
     private String serverIP;
     private NodeSender nodeSender;
     private ClientSender csdr;
-    private AnnotatorRunningInfo annotatorRunningInfo;
+    private Receiver_Impl receiver;
 
     public ActiveMQManager_Impl() {
     }
 
     public void init(String queueName) {
-
         requestAnalyst = new RequestAnalyst2();
         requestAnalyst.init();
         requestAnalyst.setSender(nodeSender, csdr);
 
-//        clientReceiver = new ClientReceiver();
-//        nreceiver = new NodeReceiver();
-//        clientReceiver.setServerIP(serverIP);
-//        nreceiver.setServerIP(serverIP);
-//        clientReceiver.setQueueName(queueName);
-//        nreceiver.setQueueName("node2main");
-//        clientReceiver.setRequestAnalyst(requestAnalyst);
-//        nreceiver.setRequestAnalyst(requestAnalyst);
-//        clientReceiver.setSender(nodeSender, csdr);
-//        nreceiver.setSender(nodeSender, csdr);
-//        clientReceiver.init();
-//        nreceiver.init();
-//
-//        Thread receiverThread = new Thread(clientReceiver);
-//        Thread nReceiverThread = new Thread(nreceiver);
-//        receiverThread.start();
-//        nReceiverThread.start();
+        receiver = new Receiver_Impl();
+
+        Thread receiverThread = new Thread(receiver);
+        receiverThread.start();
     }
 
     public void setSender(NodeSender nodeSender, ClientSender csdr) {
@@ -55,7 +41,4 @@ public class ActiveMQManager_Impl {
         this.serverIP = serverIP;
     }
 
-    public void setAnnotatorRunningInfo(AnnotatorRunningInfo annotatorRunningInfo) {
-        this.annotatorRunningInfo = annotatorRunningInfo;
-    }
 }

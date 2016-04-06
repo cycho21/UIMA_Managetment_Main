@@ -70,12 +70,11 @@ public class BroadCaster_Impl implements BroadCaster {
         }
     }
 
-    public void sendMessageTest(String message){
+    public void sendGetNodeMessage(){
         TextMessage txtMsg;
         try {
             txtMsg = session.createTextMessage();
-            txtMsg.setText(message);
-            txtMsg.setObjectProperty("msgType", "TEST");
+            txtMsg.setObjectProperty("msgType", "getNodeInfo");
             producer.send(txtMsg);
         } catch (JMSException e) {
             e.printStackTrace();
