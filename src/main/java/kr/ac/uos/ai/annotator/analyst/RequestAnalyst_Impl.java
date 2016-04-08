@@ -11,6 +11,7 @@ import lombok.Data;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.TextMessage;
 
 /**
  * @author Chan Yeon, Cho
@@ -45,6 +46,9 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         }
 
         switch (MsgType.valueOf(msgType)) {
+            case ANNOINFO:
+                annoInfo(message);
+                break;
             case JOB:
                 addJob(message);
                 break;
@@ -75,6 +79,17 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         }
     }
 
+    public void annoInfo(Message message) {
+        TextMessage tMsg = null;
+        try {
+            String annotatorName = tMsg.getObjectProperty("annotatorName").toString();
+            String ip = tMsg.getObjectProperty("ip").toString();
+
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void addInputFile(Message msg) {
         BytesMessage bMsg = (BytesMessage) msg;
@@ -83,7 +98,6 @@ class RequestAnalyst_Impl implements RequestAnalyst {
             byte[] bytes = new byte[(int) bMsg.getBodyLength()];
             bMsg.readBytes(bytes);
             process = builder.makeFile(bytes, bMsg);
-
             if(process) {
             }
 
@@ -106,6 +120,8 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         try {
             String ip = msg.getObjectProperty("text").toString();
             AnnotatorRunningInfo.getAnnotatorList().add(ip);
+            System.out.println("New annotator-------");
+            System.out.println(ip + "----");
         } catch (JMSException e) {
             e.printStackTrace();
         }
