@@ -5,7 +5,7 @@ import kr.ac.uos.ai.annotator.activemq.Sender_Impl;
 import kr.ac.uos.ai.annotator.analyst.interfaces.RequestAnalyst;
 import kr.ac.uos.ai.annotator.bean.protocol.MsgType;
 import kr.ac.uos.ai.annotator.monitor.AnnotatorRunningInfo;
-import kr.ac.uos.ai.annotator.monitor.JobList;
+import kr.ac.uos.ai.annotator.taskarchiver.TaskUnpacker;
 import lombok.Data;
 
 import javax.jms.BytesMessage;
@@ -24,12 +24,12 @@ public
 @Data
 class RequestAnalyst_Impl implements RequestAnalyst {
 
-    private JobList taskUnpacker;
     private boolean anootatorIsRun;
     private AnnotatorRunningInfo annotatorList;
     private Sender_Impl sdr;
     private UnifiedBuilder_Impl builder;
     private BroadCaster_Impl broadcaster;
+    private TaskUnpacker taskUnpacker;
 
     public RequestAnalyst_Impl() {
     }
@@ -107,7 +107,17 @@ class RequestAnalyst_Impl implements RequestAnalyst {
 
     @Override
     public void addJob(Message msg) {
+        TextMessage tMsg = null;
+        try {
+            String annotatorQuantity = tMsg.getObjectProperty("annotatorQuantity").toString();
+            String annotatorName = tMsg.getObjectProperty("annotatorName").toString();
+            String inputFile = tMsg.getObjectProperty("inputFile").toString();
+            String jobName = tMsg.getObjectProperty("jobName").toString();
+            String modifiedDate = String.valueOf(System.currentTimeMillis());
 
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -139,7 +149,27 @@ class RequestAnalyst_Impl implements RequestAnalyst {
 
     @Override
     public void upLoad(Message msg) {
+        try {
+            BytesMessage tMsg = (BytesMessage) msg;
+            byte[] bytes = new byte[(int) tMsg.getBodyLength()];
+            tMsg.readBytes(bytes);
+            makeFile(bytes, tMsg);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void makeFile(byte[] bytes, BytesMessage tMsg) {
+        try {
+            String path;
+            path = System.getProperty("user.dir") + "/inputFile/";
+            String fullPath = path + tMsg.getObjectProperty("fileName");
+            System.out.println(fullPath);
+            taskUnpacker.makeFileFromByteArray(path, fullPath, bytes);
+            sdr.sendUploadSeqCallBack("uploadSeq", "completed");
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -161,10 +191,8 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         broadcaster = new BroadCaster_Impl("taskTopic");
         broadcaster.init();
         builder = new UnifiedBuilder_Impl();
-        taskUnpacker = JobList.getInstance();
+        taskUnpacker = new TaskUnpacker();
         annotatorList = AnnotatorRunningInfo.getInstance();
         anootatorIsRun = false;
     }
-
-
 }

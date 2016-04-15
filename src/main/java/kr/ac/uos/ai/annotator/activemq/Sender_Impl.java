@@ -80,6 +80,19 @@ public class Sender_Impl implements Sender {
         }
     }
 
+    public void sendUploadSeqCallBack (String msgType, String msgTxt) {
+        TextMessage msg = null;
+        try {
+            msg = session.createTextMessage();
+            msg.setObjectProperty("msgType", msgType);
+            msg.setObjectProperty("msgTxt", msgTxt);
+            producer.send(msg);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @Override
     public void logMessage(String type, String message) {
 
