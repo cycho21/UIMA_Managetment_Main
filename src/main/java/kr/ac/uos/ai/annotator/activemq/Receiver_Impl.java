@@ -1,9 +1,7 @@
 package kr.ac.uos.ai.annotator.activemq;
 
 import kr.ac.uos.ai.annotator.activemq.interfaces.Receiver;
-import kr.ac.uos.ai.annotator.analyst.RequestAnalyst2;
 import kr.ac.uos.ai.annotator.analyst.RequestAnalyst_Impl;
-import kr.ac.uos.ai.annotator.analyst.interfaces.RequestAnalyst;
 import lombok.Data;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
@@ -29,6 +27,7 @@ public @Data class Receiver_Impl implements Runnable, Receiver {
 
     public Receiver_Impl() {
             requestAnalyst = new RequestAnalyst_Impl();
+            requestAnalyst.init();
     }
 
     public void consume() {
@@ -42,7 +41,7 @@ public @Data class Receiver_Impl implements Runnable, Receiver {
     }
 
     public void init() {
-        factory = new ActiveMQConnectionFactory("tcp://" + "localhost" + ":61616");
+        factory = new ActiveMQConnectionFactory("tcp://" + "211.109.9.71" + ":61616");
         try {
             connection = factory.createConnection();
             connection.start();
@@ -64,4 +63,7 @@ public @Data class Receiver_Impl implements Runnable, Receiver {
         }
     }
 
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
 }

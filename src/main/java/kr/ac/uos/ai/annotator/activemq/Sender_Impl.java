@@ -2,12 +2,9 @@ package kr.ac.uos.ai.annotator.activemq;
 
 import kr.ac.uos.ai.annotator.activemq.interfaces.Sender;
 import kr.ac.uos.ai.annotator.bean.protocol.Job;
-import kr.ac.uos.ai.annotator.classloader.JobTracker;
-import kr.ac.uos.ai.annotator.monitor.JobList;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
-import java.io.File;
 
 /**
  * @author Chan Yeon, Cho
@@ -46,7 +43,7 @@ public class Sender_Impl implements Sender {
 
     @Override
     public void init() {
-        factory = new ActiveMQConnectionFactory("tcp://" + "localhost" + ":61616");
+        factory = new ActiveMQConnectionFactory("tcp://" + "211.109.9.71" + ":61616");
         try {
             connection = factory.createConnection();
             connection.start();
@@ -86,6 +83,7 @@ public class Sender_Impl implements Sender {
             msg = session.createTextMessage();
             msg.setObjectProperty("msgType", msgType);
             msg.setObjectProperty("msgTxt", msgTxt);
+            msg.setObjectProperty("text", "completed");
             producer.send(msg);
         } catch (JMSException e) {
             e.printStackTrace();

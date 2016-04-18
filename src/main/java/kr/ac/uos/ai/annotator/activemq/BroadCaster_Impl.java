@@ -29,7 +29,7 @@ public class BroadCaster_Impl implements BroadCaster {
 
     public void init() {
         try {
-            connectionFactory = new ActiveMQConnectionFactory("tcp://" + "localhost" + ":61616");
+            connectionFactory = new ActiveMQConnectionFactory("tcp://" + "211.109.9.71" + ":61616");
             connection = connectionFactory.createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

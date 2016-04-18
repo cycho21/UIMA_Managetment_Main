@@ -1,7 +1,6 @@
 package kr.ac.uos.ai.annotator.activemq;
 
 import kr.ac.uos.ai.annotator.analyst.RequestAnalyst2;
-import kr.ac.uos.ai.annotator.monitor.AnnotatorRunningInfo;
 
 /**
  * @author Chan Yeon, Cho
@@ -17,6 +16,7 @@ public class ActiveMQManager_Impl {
     private NodeSender nodeSender;
     private ClientSender csdr;
     private Receiver_Impl receiver;
+    private BroadCaster_Impl broadCaster;
 
     public ActiveMQManager_Impl() {
     }
@@ -25,6 +25,10 @@ public class ActiveMQManager_Impl {
         requestAnalyst = new RequestAnalyst2();
         requestAnalyst.init();
         requestAnalyst.setSender(nodeSender, csdr);
+
+        broadCaster = new BroadCaster_Impl("basicTopicName");
+        broadCaster.init();
+        broadCaster.sendMessage("this is", "test");
 
         receiver = new Receiver_Impl();
         receiver.setQueueName(queueName);
