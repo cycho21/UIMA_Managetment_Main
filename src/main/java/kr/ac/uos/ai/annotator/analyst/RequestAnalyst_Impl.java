@@ -3,8 +3,13 @@ package kr.ac.uos.ai.annotator.analyst;
 import kr.ac.uos.ai.annotator.activemq.BroadCaster_Impl;
 import kr.ac.uos.ai.annotator.activemq.Sender_Impl;
 import kr.ac.uos.ai.annotator.analyst.interfaces.RequestAnalyst;
+import kr.ac.uos.ai.annotator.bean.protocol.Job;
 import kr.ac.uos.ai.annotator.bean.protocol.MsgType;
+import kr.ac.uos.ai.annotator.bean.protocol.Protocol;
+import kr.ac.uos.ai.annotator.classloader.JobTracker;
+import kr.ac.uos.ai.annotator.forker.ProcessForker;
 import kr.ac.uos.ai.annotator.monitor.AnnotatorRunningInfo;
+import kr.ac.uos.ai.annotator.monitor.JobList;
 import kr.ac.uos.ai.annotator.taskarchiver.TaskUnpacker;
 import lombok.Data;
 
@@ -12,6 +17,7 @@ import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
+import java.io.File;
 
 /**
  * @author Chan Yeon, Cho
@@ -30,6 +36,7 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     private UnifiedBuilder_Impl builder;
     private BroadCaster_Impl broadcaster;
     private TaskUnpacker taskUnpacker;
+    private JobTracker jobTracker;
 
     public RequestAnalyst_Impl() {
     }
@@ -100,7 +107,6 @@ class RequestAnalyst_Impl implements RequestAnalyst {
             process = builder.makeFile(bytes, bMsg);
             if(process) {
             }
-
         } catch (JMSException e) {
         }
     }
@@ -144,19 +150,37 @@ class RequestAnalyst_Impl implements RequestAnalyst {
 
     @Override
     public void requestJob(Message msg) {
-
+        Protocol protocol = makeProtocol(msg);
+        if(jobListCheck(msg)){
+            sdr.sendMessage("requestJob", "execute", null, null);
+            ProcessForker processForker = new ProcessForker();
+            Thread tempThread = new Thread(processForker);
+            processForker.setInputFileName(protocol.getJob().getFileName());
+            tempThread.start();
+            JobList.getJobList().get(protocol.getJob().getJobName()).setWatchdog(processForker.getWatcher());
+            JobList.getJobList().get(protocol.getJob().getJobName()).setIsExecute(true);
+        }
     }
 
     @Override
     public void upLoad(Message msg) {
         try {
             BytesMessage tMsg = (BytesMessage) msg;
+
             byte[] bytes = new byte[(int) tMsg.getBodyLength()];
             tMsg.readBytes(bytes);
             makeFile(bytes, tMsg);
+
+            if(tMsg.getObjectProperty("fileName").toString().contains("jar")){
+                releaseAnnotator(bytes, tMsg.getObjectProperty("fileName").toString());
+            }
         } catch (JMSException e) {
             e.printStackTrace();
         }
+    }
+
+    private void releaseAnnotator(byte[] bytes, String fileName) {
+        broadcaster.sendMessage(bytes, fileName);
     }
 
     public void makeFile(byte[] bytes, BytesMessage tMsg) {
@@ -179,21 +203,61 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     }
 
     @Override
-    public void jobListCheck(Message msg) {
-
-    }
-
-
-    @Override
     public void init() {
         sdr = new Sender_Impl();
         sdr.init();
         sdr.createQueue("client");
-        broadcaster = new BroadCaster_Impl("taskTopic");
+        jobTracker = new JobTracker();
+        broadcaster = new BroadCaster_Impl("basicTopicName");
         broadcaster.init();
         builder = new UnifiedBuilder_Impl();
         taskUnpacker = new TaskUnpacker();
         annotatorList = AnnotatorRunningInfo.getInstance();
         anootatorIsRun = false;
+    }
+
+    public Job makeJob(Message message) {
+        Job job = new Job();
+        try {
+            job.setModifiedDate(message.getObjectProperty("modifiedDate").toString());
+            job.setDeveloper(message.getObjectProperty("developer").toString());
+            job.setJobName(message.getObjectProperty("jobName").toString());
+            job.setFileName(message.getObjectProperty("jobFileName").toString());
+            job.setVersion(message.getObjectProperty("version").toString());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return job;
+    }
+
+    public Protocol makeProtocol (Message message) {
+        Protocol protocol = new Protocol();
+        protocol.setJob(makeJob(message));
+        try {
+            protocol.setMsgType(MsgType.valueOf(message.getObjectProperty("msgType").toString().toUpperCase()));
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return protocol;
+    }
+
+    public Boolean jobListCheck(Message message) {
+
+        File[] tempFiles = jobTracker.getFiles();
+        String jobFileName = null;
+        Boolean matched = false;
+
+        try {
+            jobFileName = message.getObjectProperty("jobFileName").toString();
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+
+        for (File tempFile : tempFiles) {
+            if (tempFile.getName().equals(jobFileName)) {
+                matched = true;
+            }
+        }
+        return matched;
     }
 }

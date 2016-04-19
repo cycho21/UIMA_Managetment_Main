@@ -26,9 +26,6 @@ public class ActiveMQManager_Impl {
         requestAnalyst.init();
         requestAnalyst.setSender(nodeSender, csdr);
 
-        broadCaster = new BroadCaster_Impl("basicTopicName");
-        broadCaster.init();
-        broadCaster.sendMessage("this is", "test");
 
         receiver = new Receiver_Impl();
         receiver.setQueueName(queueName);

@@ -40,18 +40,13 @@ public class BroadCaster_Impl implements BroadCaster {
         }
     }
 
-    public void sendMessage(byte[] msg, String fileName, Protocol protocol) {
+    public void sendMessage(byte[] msg, String fileName) {
         try {
             BytesMessage message = session.createBytesMessage();
             message.writeBytes(msg);
+            message.setObjectProperty("msgType", "upload");
             message.setObjectProperty("type", "jar");
-            message.setObjectProperty("msgType", protocol.getMsgType());
-            message.setObjectProperty("developer", protocol.getJob().getDeveloper());
-            message.setObjectProperty("jobName", protocol.getJob().getJobName());
-            message.setObjectProperty("modifiedDate", protocol.getJob().getModifiedDate());
-            message.setObjectProperty("version", protocol.getJob().getVersion());
             message.setObjectProperty("fileName", fileName);
-            message.setObjectProperty("fileSize", protocol.getJob().getJobSize());
             producer.send(message);
         } catch (JMSException e) {
             e.printStackTrace();

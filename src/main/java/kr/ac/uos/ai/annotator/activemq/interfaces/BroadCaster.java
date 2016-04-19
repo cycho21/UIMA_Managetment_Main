@@ -11,7 +11,7 @@ import kr.ac.uos.ai.annotator.bean.protocol.Protocol;
 public interface BroadCaster {
 
     void init();
-    void sendMessage(byte[] msg, String fileName, Protocol protocol); // send Byte Message
+    void sendMessage(byte[] msg, String fileName); // send Byte Message
     void sendMessage(String message); // Simple Text Message
     void sendMessage(String runAnnotator, String annoFileName);
     void sendGetNodeMessage();

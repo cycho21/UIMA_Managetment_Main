@@ -27,7 +27,7 @@ public interface RequestAnalyst {
 
     void sendJob(Message msg);
 
-    void jobListCheck(Message msg);
+    Boolean jobListCheck(Message msg);
 
     void addJob(Message msg);
 
