@@ -21,6 +21,7 @@ public class Application {
     }
 
     private void init() {
+
         this.serverIP = "211.109.9.71";
 
         activemqManager = new ActiveMQManager_Impl();
@@ -28,14 +29,19 @@ public class Application {
 
         sdr = new NodeSender();
         csdr = new ClientSender();
+
         sdr.setServerIP(serverIP);
         csdr.setServerIP(serverIP);
+
         sdr.init();
         csdr.init();
+
         sdr.createQueue("main2node");
         csdr.createQueue("main2client");
+
         activemqManager.setSender(sdr, csdr);
         activemqManager.init("main");
+
         System.out.println("Main Management Starting...");
     }
 

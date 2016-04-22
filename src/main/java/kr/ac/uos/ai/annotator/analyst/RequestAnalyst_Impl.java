@@ -18,6 +18,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * @author Chan Yeon, Cho
@@ -37,6 +38,8 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     private BroadCaster_Impl broadcaster;
     private TaskUnpacker taskUnpacker;
     private JobTracker jobTracker;
+    private Sender_Impl nsdr;
+    private ArrayList<String> initialAnnoList;
 
     public RequestAnalyst_Impl() {
     }
@@ -53,6 +56,9 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         }
 
         switch (MsgType.valueOf(msgType)) {
+            case INITIALANNOTATOR:
+                addInitialAnnotator(message);
+                break;
             case ANNOINFO:
                 annoInfo(message);
                 break;
@@ -86,6 +92,15 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         }
     }
 
+    private void addInitialAnnotator(Message message) {
+        TextMessage textMessage = (TextMessage) message;
+        try {
+            this.initialAnnoList.add(textMessage.getObjectProperty("fileName").toString());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void annoInfo(Message message) {
         TextMessage tMsg = null;
         try {
@@ -114,9 +129,8 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     @Override
     public void addJob(Message msg) {
         TextMessage tMsg = null;
+
         try {
-            String annotatorQuantity = tMsg.getObjectProperty("annotatorQuantity").toString();
-            String annotatorName = tMsg.getObjectProperty("annotatorName").toString();
             String inputFile = tMsg.getObjectProperty("inputFile").toString();
             String jobName = tMsg.getObjectProperty("jobName").toString();
             String modifiedDate = String.valueOf(System.currentTimeMillis());
@@ -136,8 +150,14 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         try {
             String ip = msg.getObjectProperty("text").toString();
             AnnotatorRunningInfo.getAnnotatorList().add(ip);
+
             System.out.println("New annotator-------");
             System.out.println(ip + "----");
+
+            for(String s : initialAnnoList) {
+                nsdr.sendUploadSeqCallBack("ANNORUN", s);
+            }
+
         } catch (JMSException e) {
             e.printStackTrace();
         }
@@ -157,6 +177,7 @@ class RequestAnalyst_Impl implements RequestAnalyst {
             Thread tempThread = new Thread(processForker);
             processForker.setInputFileName(protocol.getJob().getFileName());
             tempThread.start();
+
             JobList.getJobList().get(protocol.getJob().getJobName()).setWatchdog(processForker.getWatcher());
             JobList.getJobList().get(protocol.getJob().getJobName()).setIsExecute(true);
         }
@@ -186,8 +207,8 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     public void makeFile(byte[] bytes, BytesMessage tMsg) {
         try {
             String path;
-//            path = System.getProperty("user.dir") + "/inputFile/";  // linux
-            path = System.getProperty("user.dir") + "\\inputFile\\";  // windows
+            path = System.getProperty("user.dir") + "/inputFile/";  // linux
+//            path = System.getProperty("user.dir") + "\\inputFile\\";  // windows
             String fullPath = path + tMsg.getObjectProperty("fileName");
             System.out.println(fullPath);
             taskUnpacker.makeFileFromByteArray(path, fullPath, bytes);
@@ -207,6 +228,14 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         sdr = new Sender_Impl();
         sdr.init();
         sdr.createQueue("client");
+
+        nsdr = new Sender_Impl();
+        nsdr.init();
+        nsdr.createQueue("node");
+
+
+        initialAnnoList = new ArrayList<>();
+
         jobTracker = new JobTracker();
         broadcaster = new BroadCaster_Impl("basicTopicName");
         broadcaster.init();

@@ -38,7 +38,8 @@ public class ProcessForker implements Runnable {
 
     public ExecuteWatchdog forkNewProc() {
         String path = System.getProperty("user.dir");
-        String line = "java -jar " + path + "/uimaMain/uimaEngine.jar " + inputFileName;
+        String line = "java -jar " + path + "/uimaMain/uimaEngine.jar " + inputFileName; // linux
+//        String line = "java -jar " + path + "\\uimaMain\\uimaEngine.jar " + inputFileName; // windows
         CommandLine cmdLine = CommandLine.parse(line);
         DefaultExecutor executor = new DefaultExecutor();
         try {
