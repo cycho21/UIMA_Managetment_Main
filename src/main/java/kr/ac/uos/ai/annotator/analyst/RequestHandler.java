@@ -194,7 +194,7 @@ public class RequestHandler {
     public void connect(Message message) {
         try {
             String ip = (String) message.getObjectProperty("text");
-            AnnotatorRunningInfo.getAnnotatorList().add(ip);
+            AnnotatorRunningInfo.getNodeList().add(ip);
         } catch (JMSException e) {
             e.printStackTrace();
         }
