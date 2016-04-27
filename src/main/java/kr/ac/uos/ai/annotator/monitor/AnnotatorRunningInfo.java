@@ -1,4 +1,6 @@
 package kr.ac.uos.ai.annotator.monitor;
+import kr.ac.uos.ai.annotator.bean.protocol.AnnotatorInfo;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,13 +14,12 @@ import java.util.HashMap;
 public class AnnotatorRunningInfo {
     private static AnnotatorRunningInfo ourInstance = new AnnotatorRunningInfo();
     private static ArrayList<String> nodeList;
-    private static ArrayList<String> annotatorList;
+    private static ArrayList<AnnotatorInfo> annotatorList;
 
     public AnnotatorRunningInfo() {
     }
 
-    public static ArrayList<String> getAnnotatorList() {
-
+    public static ArrayList<AnnotatorInfo> getAnnotatorList() {
         if(annotatorList!=null){
             /* doNothing; */
         } else {
@@ -28,7 +29,6 @@ public class AnnotatorRunningInfo {
     }
 
     public static ArrayList<String> getNodeList() {
-
         if(nodeList!=null){
             /* doNothing; */
         } else {

@@ -3,6 +3,7 @@ package kr.ac.uos.ai.annotator.analyst;
 import kr.ac.uos.ai.annotator.activemq.BroadCaster_Impl;
 import kr.ac.uos.ai.annotator.activemq.Sender_Impl;
 import kr.ac.uos.ai.annotator.analyst.interfaces.RequestAnalyst;
+import kr.ac.uos.ai.annotator.bean.protocol.AnnotatorInfo;
 import kr.ac.uos.ai.annotator.bean.protocol.Job;
 import kr.ac.uos.ai.annotator.bean.protocol.MsgType;
 import kr.ac.uos.ai.annotator.bean.protocol.Protocol;
@@ -149,7 +150,7 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     public void connect(Message msg) {
         try {
             String ip = msg.getObjectProperty("text").toString();
-            AnnotatorRunningInfo.getAnnotatorList().add(ip);
+            AnnotatorRunningInfo.getNodeList().add(ip);
 
             System.out.println("New annotator-------");
             System.out.println(ip + "----");
@@ -192,12 +193,30 @@ class RequestAnalyst_Impl implements RequestAnalyst {
             tMsg.readBytes(bytes);
             makeFile(bytes, tMsg);
 
+            addAnnotator(tMsg);
+
             if(tMsg.getObjectProperty("fileName").toString().contains("jar")){
                 releaseAnnotator(bytes, tMsg.getObjectProperty("fileName").toString());
             }
         } catch (JMSException e) {
             e.printStackTrace();
         }
+    }
+
+    private void addAnnotator(BytesMessage tMsg) {
+        AnnotatorInfo annotatorInfo = new AnnotatorInfo();
+        try {
+
+            annotatorInfo.setAuthor(tMsg.getObjectProperty("author").toString());
+            annotatorInfo.setModifiedDate(tMsg.getObjectProperty("modifiedDate").toString());
+            annotatorInfo.setName(tMsg.getObjectProperty("annotatorName").toString());
+            annotatorInfo.setVersion(tMsg.getObjectProperty("version").toString());
+            annotatorInfo.setFileName(tMsg.getObjectProperty("fileName").toString());
+
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        AnnotatorRunningInfo.getAnnotatorList().add(annotatorInfo);
     }
 
     private void releaseAnnotator(byte[] bytes, String fileName) {
