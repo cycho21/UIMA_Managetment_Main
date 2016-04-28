@@ -1,7 +1,9 @@
 package kr.ac.uos.ai.annotator.activemq;
 
 import kr.ac.uos.ai.annotator.activemq.interfaces.Sender;
+import kr.ac.uos.ai.annotator.bean.protocol.AnnotatorInfo;
 import kr.ac.uos.ai.annotator.bean.protocol.Job;
+import kr.ac.uos.ai.annotator.monitor.AnnotatorRunningInfo;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
@@ -101,4 +103,23 @@ public class Sender_Impl implements Sender {
         return null;
     }
 
+    public void sendAnnoCallBack() {
+        TextMessage msg = null;
+        try{
+            msg = session.createTextMessage();
+
+            for(AnnotatorInfo annotatorInfo : AnnotatorRunningInfo.getAnnotatorList()){
+                msg.setObjectProperty("msgType", "getAnnotatorListCallBack");
+                msg.setObjectProperty("author", annotatorInfo.getAuthor());
+                msg.setObjectProperty("annotatorName", annotatorInfo.getName());
+                msg.setObjectProperty("version", annotatorInfo.getVersion());
+                msg.setObjectProperty("fileName", annotatorInfo.getFileName());
+                msg.setObjectProperty("modifiedDate", annotatorInfo.getModifiedDate());
+                producer.send(msg);
+            }
+
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
 }

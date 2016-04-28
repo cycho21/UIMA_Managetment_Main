@@ -28,9 +28,7 @@ import java.util.ArrayList;
  * @link http://ai.uos.ac.kr:9000/lovebube/UIMA_Management_Client
  */
 
-public
-@Data
-class RequestAnalyst_Impl implements RequestAnalyst {
+public class RequestAnalyst_Impl implements RequestAnalyst {
 
     private boolean anootatorIsRun;
     private AnnotatorRunningInfo annotatorList;
@@ -57,6 +55,9 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         }
 
         switch (MsgType.valueOf(msgType)) {
+            case GETANNOTATORLIST:
+                getAnnotatorList();
+                break;
             case INITIALANNOTATOR:
                 addInitialAnnotator(message);
                 break;
@@ -91,6 +92,10 @@ class RequestAnalyst_Impl implements RequestAnalyst {
                 /* doNothing */
                 break;
         }
+    }
+
+    private void getAnnotatorList() {
+            sdr.sendAnnoCallBack();
     }
 
     private void addInitialAnnotator(Message message) {
@@ -204,7 +209,9 @@ class RequestAnalyst_Impl implements RequestAnalyst {
     }
 
     private void addAnnotator(BytesMessage tMsg) {
+
         AnnotatorInfo annotatorInfo = new AnnotatorInfo();
+
         try {
 
             annotatorInfo.setAuthor(tMsg.getObjectProperty("author").toString());
@@ -216,6 +223,7 @@ class RequestAnalyst_Impl implements RequestAnalyst {
         } catch (JMSException e) {
             e.printStackTrace();
         }
+
         AnnotatorRunningInfo.getAnnotatorList().add(annotatorInfo);
     }
 
