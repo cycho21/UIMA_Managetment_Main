@@ -1,11 +1,8 @@
 package kr.ac.uos.ai.annotator.activemq;
 
-import kr.ac.uos.ai.annotator.bean.protocol.Job;
-import kr.ac.uos.ai.annotator.monitor.JobList;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
-import java.util.HashMap;
 
 public class NodeSender {
 	private ActiveMQConnectionFactory factory;

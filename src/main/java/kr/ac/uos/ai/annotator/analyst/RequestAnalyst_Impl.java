@@ -95,7 +95,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
     }
 
     private void getAnnotatorList() {
-            sdr.sendAnnoCallBack();
+        sdr.sendAnnoCallBack();
     }
 
     private void addInitialAnnotator(Message message) {
@@ -126,7 +126,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             byte[] bytes = new byte[(int) bMsg.getBodyLength()];
             bMsg.readBytes(bytes);
             process = builder.makeFile(bytes, bMsg);
-            if(process) {
+            if (process) {
             }
         } catch (JMSException e) {
         }
@@ -160,7 +160,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             System.out.println("New annotator-------");
             System.out.println(ip + "----");
 
-            for(String s : initialAnnoList) {
+            for (String s : initialAnnoList) {
                 nsdr.sendUploadSeqCallBack("ANNORUN", s);
             }
 
@@ -177,7 +177,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
     @Override
     public void requestJob(Message msg) {
         Protocol protocol = makeProtocol(msg);
-        if(jobListCheck(msg)){
+        if (jobListCheck(msg)) {
             sdr.sendMessage("requestJob", "execute", null, null);
             ProcessForker processForker = new ProcessForker();
             Thread tempThread = new Thread(processForker);
@@ -198,21 +198,26 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             tMsg.readBytes(bytes);
             makeFile(bytes, tMsg);
 
-            addAnnotator(tMsg);
+            String type = addAnnotator(tMsg);
 
-            if(tMsg.getObjectProperty("fileName").toString().contains("jar")){
-                releaseAnnotator(bytes, tMsg.getObjectProperty("fileName").toString());
+            if (tMsg.getObjectProperty("fileName").toString().contains("jar")) {
+                releaseAnnotator(bytes, tMsg.getObjectProperty("fileName").toString(), type);
             }
         } catch (JMSException e) {
             e.printStackTrace();
         }
     }
 
-    private void addAnnotator(BytesMessage tMsg) {
-
+    private String addAnnotator(BytesMessage tMsg) {
+        String tempString = null;
         AnnotatorInfo annotatorInfo = new AnnotatorInfo();
 
         try {
+
+            if (AnnotatorRunningInfo.getAnnotatorList().containsKey(tMsg.getObjectProperty("annotatorName").toString())) {
+                AnnotatorRunningInfo.getAnnotatorList().remove(tMsg.getObjectProperty("annotatorName").toString());
+                tempString = "update";
+            }
 
             annotatorInfo.setAuthor(tMsg.getObjectProperty("author").toString());
             annotatorInfo.setModifiedDate(tMsg.getObjectProperty("modifiedDate").toString());
@@ -220,15 +225,17 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             annotatorInfo.setVersion(tMsg.getObjectProperty("version").toString());
             annotatorInfo.setFileName(tMsg.getObjectProperty("fileName").toString());
 
+            AnnotatorRunningInfo.getAnnotatorList().put(tMsg.getObjectProperty("annotatorName").toString(), annotatorInfo);
+                tempString = "enroll";
+
         } catch (JMSException e) {
             e.printStackTrace();
         }
-
-        AnnotatorRunningInfo.getAnnotatorList().add(annotatorInfo);
+        return tempString;
     }
 
-    private void releaseAnnotator(byte[] bytes, String fileName) {
-        broadcaster.sendMessage(bytes, fileName);
+    private void releaseAnnotator(byte[] bytes, String fileName, String type) {
+        broadcaster.sendMessage(bytes, fileName, type);
     }
 
     public void makeFile(byte[] bytes, BytesMessage tMsg) {
@@ -275,18 +282,18 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
     public Job makeJob(Message message) {
         Job job = new Job();
         try {
-            job.setModifiedDate(message.getObjectProperty("modifiedDate").toString());
-            job.setDeveloper(message.getObjectProperty("developer").toString());
-            job.setJobName(message.getObjectProperty("jobName").toString());
-            job.setFileName(message.getObjectProperty("jobFileName").toString());
-            job.setVersion(message.getObjectProperty("version").toString());
+            job.setModifiedDate (message.getObjectProperty("modifiedDate").toString());
+            job.setDeveloper    (message.getObjectProperty("developer").toString());
+            job.setJobName      (message.getObjectProperty("jobName").toString());
+            job.setFileName     (message.getObjectProperty("jobFileName").toString());
+            job.setVersion      (message.getObjectProperty("version").toString());
         } catch (JMSException e) {
             e.printStackTrace();
         }
         return job;
     }
 
-    public Protocol makeProtocol (Message message) {
+    public Protocol makeProtocol(Message message) {
         Protocol protocol = new Protocol();
         protocol.setJob(makeJob(message));
         try {

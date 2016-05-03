@@ -14,16 +14,16 @@ import java.util.HashMap;
 public class AnnotatorRunningInfo {
     private static AnnotatorRunningInfo ourInstance = new AnnotatorRunningInfo();
     private static ArrayList<String> nodeList;
-    private static ArrayList<AnnotatorInfo> annotatorList;
+    private static HashMap<String, AnnotatorInfo> annotatorList;
 
     public AnnotatorRunningInfo() {
     }
 
-    public static ArrayList<AnnotatorInfo> getAnnotatorList() {
+    public static HashMap<String, AnnotatorInfo> getAnnotatorList() {
         if(annotatorList!=null){
             /* doNothing; */
         } else {
-            annotatorList = new ArrayList<>();
+            annotatorList = new HashMap<>();
         }
         return annotatorList;
     }
