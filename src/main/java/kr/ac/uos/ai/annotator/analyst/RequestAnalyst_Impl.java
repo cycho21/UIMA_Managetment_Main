@@ -217,19 +217,20 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             if (AnnotatorRunningInfo.getAnnotatorList().containsKey(tMsg.getObjectProperty("annotatorName").toString())) {
                 AnnotatorRunningInfo.getAnnotatorList().remove(tMsg.getObjectProperty("annotatorName").toString());
                 tempString = "update";
+            } else {
+                AnnotatorRunningInfo.getAnnotatorList().put(tMsg.getObjectProperty("annotatorName").toString(), annotatorInfo);
+                tempString = "enroll";
             }
 
-            annotatorInfo.setAuthor(tMsg.getObjectProperty("author").toString());
-            annotatorInfo.setModifiedDate(tMsg.getObjectProperty("modifiedDate").toString());
-            annotatorInfo.setName(tMsg.getObjectProperty("annotatorName").toString());
-            annotatorInfo.setVersion(tMsg.getObjectProperty("version").toString());
-            annotatorInfo.setFileName(tMsg.getObjectProperty("fileName").toString());
-
-            AnnotatorRunningInfo.getAnnotatorList().put(tMsg.getObjectProperty("annotatorName").toString(), annotatorInfo);
-                tempString = "enroll";
+                annotatorInfo.setAuthor(tMsg.getObjectProperty("author").toString());
+                annotatorInfo.setModifiedDate(tMsg.getObjectProperty("modifiedDate").toString());
+                annotatorInfo.setName(tMsg.getObjectProperty("annotatorName").toString());
+                annotatorInfo.setVersion(tMsg.getObjectProperty("version").toString());
+                annotatorInfo.setFileName(tMsg.getObjectProperty("fileName").toString());
 
         } catch (JMSException e) {
             e.printStackTrace();
+            System.out.println(tempString);
         }
         return tempString;
     }
@@ -239,14 +240,19 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
     }
 
     public void makeFile(byte[] bytes, BytesMessage tMsg) {
+
         try {
             String path;
             path = System.getProperty("user.dir") + "/inputFile/";  // linux
+
 //            path = System.getProperty("user.dir") + "\\inputFile\\";  // windows
+
             String fullPath = path + tMsg.getObjectProperty("fileName");
-            System.out.println(fullPath);
+
             taskUnpacker.makeFileFromByteArray(path, fullPath, bytes);
+
             sdr.sendUploadSeqCallBack("uploadSeq", "completed");
+
         } catch (JMSException e) {
             e.printStackTrace();
         }
@@ -282,11 +288,13 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
     public Job makeJob(Message message) {
         Job job = new Job();
         try {
+
             job.setModifiedDate (message.getObjectProperty("modifiedDate").toString());
             job.setDeveloper    (message.getObjectProperty("developer").toString());
             job.setJobName      (message.getObjectProperty("jobName").toString());
             job.setFileName     (message.getObjectProperty("jobFileName").toString());
             job.setVersion      (message.getObjectProperty("version").toString());
+
         } catch (JMSException e) {
             e.printStackTrace();
         }

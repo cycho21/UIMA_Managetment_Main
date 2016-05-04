@@ -7,6 +7,7 @@ import kr.ac.uos.ai.annotator.monitor.AnnotatorRunningInfo;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
+import java.util.Set;
 
 /**
  * @author Chan Yeon, Cho
@@ -107,14 +108,19 @@ public class Sender_Impl implements Sender {
         TextMessage msg = null;
         try{
             msg = session.createTextMessage();
+            Set keySet = AnnotatorRunningInfo.getAnnotatorList().keySet();
 
-            for(AnnotatorInfo annotatorInfo : AnnotatorRunningInfo.getAnnotatorList()){
+            for(Object s : keySet){
+
+                AnnotatorInfo annotatorInfo = AnnotatorRunningInfo.getAnnotatorList().get(s.toString());
+
                 msg.setObjectProperty("msgType", "getAnnotatorListCallBack");
                 msg.setObjectProperty("author", annotatorInfo.getAuthor());
                 msg.setObjectProperty("annotatorName", annotatorInfo.getName());
                 msg.setObjectProperty("version", annotatorInfo.getVersion());
                 msg.setObjectProperty("fileName", annotatorInfo.getFileName());
                 msg.setObjectProperty("modifiedDate", annotatorInfo.getModifiedDate());
+
                 producer.send(msg);
             }
 
