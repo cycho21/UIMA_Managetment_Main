@@ -157,8 +157,8 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             String ip = msg.getObjectProperty("text").toString();
             AnnotatorRunningInfo.getNodeList().add(ip);
 
-            System.out.println("New annotator-------");
-            System.out.println(ip + "----");
+            System.out.println("...New annotator added...");
+            System.out.println("*** " + ip + " ***");
 
             for (String s : initialAnnoList) {
                 nsdr.sendUploadSeqCallBack("ANNORUN", s);
@@ -191,8 +191,8 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
 
     @Override
     public void upLoad(Message msg) {
+        BytesMessage tMsg = (BytesMessage) msg;
         try {
-            BytesMessage tMsg = (BytesMessage) msg;
 
             byte[] bytes = new byte[(int) tMsg.getBodyLength()];
             tMsg.readBytes(bytes);
@@ -203,9 +203,11 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             if (tMsg.getObjectProperty("fileName").toString().contains("jar")) {
                 releaseAnnotator(bytes, tMsg.getObjectProperty("fileName").toString(), type);
             }
+
         } catch (JMSException e) {
             e.printStackTrace();
         }
+
     }
 
     private String addAnnotator(BytesMessage tMsg) {
@@ -214,19 +216,20 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
 
         try {
 
+            annotatorInfo.setAuthor(tMsg.getObjectProperty("author").toString());
+            annotatorInfo.setModifiedDate(tMsg.getObjectProperty("modifiedDate").toString());
+            annotatorInfo.setName(tMsg.getObjectProperty("annotatorName").toString());
+            annotatorInfo.setVersion(tMsg.getObjectProperty("version").toString());
+            annotatorInfo.setFileName(tMsg.getObjectProperty("fileName").toString());
+
             if (AnnotatorRunningInfo.getAnnotatorList().containsKey(tMsg.getObjectProperty("annotatorName").toString())) {
                 AnnotatorRunningInfo.getAnnotatorList().remove(tMsg.getObjectProperty("annotatorName").toString());
+                AnnotatorRunningInfo.getAnnotatorList().put(tMsg.getObjectProperty("annotatorName").toString(), annotatorInfo);
                 tempString = "update";
             } else {
                 AnnotatorRunningInfo.getAnnotatorList().put(tMsg.getObjectProperty("annotatorName").toString(), annotatorInfo);
                 tempString = "enroll";
             }
-
-                annotatorInfo.setAuthor(tMsg.getObjectProperty("author").toString());
-                annotatorInfo.setModifiedDate(tMsg.getObjectProperty("modifiedDate").toString());
-                annotatorInfo.setName(tMsg.getObjectProperty("annotatorName").toString());
-                annotatorInfo.setVersion(tMsg.getObjectProperty("version").toString());
-                annotatorInfo.setFileName(tMsg.getObjectProperty("fileName").toString());
 
         } catch (JMSException e) {
             e.printStackTrace();
@@ -289,11 +292,11 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
         Job job = new Job();
         try {
 
-            job.setModifiedDate (message.getObjectProperty("modifiedDate").toString());
-            job.setDeveloper    (message.getObjectProperty("developer").toString());
-            job.setJobName      (message.getObjectProperty("jobName").toString());
-            job.setFileName     (message.getObjectProperty("jobFileName").toString());
-            job.setVersion      (message.getObjectProperty("version").toString());
+            job.setModifiedDate(message.getObjectProperty("modifiedDate").toString());
+            job.setDeveloper(message.getObjectProperty("developer").toString());
+            job.setJobName(message.getObjectProperty("jobName").toString());
+            job.setFileName(message.getObjectProperty("jobFileName").toString());
+            job.setVersion(message.getObjectProperty("version").toString());
 
         } catch (JMSException e) {
             e.printStackTrace();
