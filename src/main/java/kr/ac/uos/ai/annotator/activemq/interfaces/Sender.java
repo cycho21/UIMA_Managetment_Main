@@ -9,12 +9,10 @@ import kr.ac.uos.ai.annotator.bean.protocol.Job;
  * @link http://ai.uos.ac.kr:9000/lovebube/UIMA_Management_Client
  */
 public interface Sender {
-
     void createQueue(String queueName);
     void set();
     void init();
     void sendMessage(String msgType, String msgTxt, Job job, byte[] byteFromFile);
     void logMessage(String type, String message);
     String switchMessage(String msgType, String msgTxt, Job job, byte[] byteFromFile);
-
 }

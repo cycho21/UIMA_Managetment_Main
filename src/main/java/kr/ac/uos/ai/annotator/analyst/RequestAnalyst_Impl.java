@@ -19,6 +19,10 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
@@ -129,6 +133,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             if (process) {
             }
         } catch (JMSException e) {
+            e.printStackTrace();
         }
     }
 
@@ -160,14 +165,30 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             System.out.println("...New annotator added...");
             System.out.println("*** " + ip + " ***");
 
-            for (String s : initialAnnoList) {
-                nsdr.sendUploadSeqCallBack("ANNORUN", s);
+            for (String tempString : AnnotatorRunningInfo.getAnnotatorList().keySet()) {
+                String fileName = AnnotatorRunningInfo.getAnnotatorList().get(tempString).getFileName();
+                String annoName = AnnotatorRunningInfo.getAnnotatorList().get(tempString).getName();
+                String path = System.getProperty("user.dir") + "/inputFile/" + fileName;
+
+                releaseAnnotator(file2Byte(path), fileName, "enroll", ip);
             }
 
         } catch (JMSException e) {
             e.printStackTrace();
         }
     }
+
+    public byte[] file2Byte(String jarPath) {
+        Path path = Paths.get(jarPath);
+        byte[] data = null;
+        try {
+            data = Files.readAllBytes(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
 
     @Override
     public void getJobList(Message msg) {
@@ -176,6 +197,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
 
     @Override
     public void requestJob(Message msg) {
+
         Protocol protocol = makeProtocol(msg);
         if (jobListCheck(msg)) {
             sdr.sendMessage("requestJob", "execute", null, null);
@@ -186,6 +208,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
 
             JobList.getJobList().get(protocol.getJob().getJobName()).setWatchdog(processForker.getWatcher());
             JobList.getJobList().get(protocol.getJob().getJobName()).setIsExecute(true);
+
         }
     }
 
@@ -201,7 +224,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             String type = addAnnotator(tMsg);
 
             if (tMsg.getObjectProperty("fileName").toString().contains("jar")) {
-                releaseAnnotator(bytes, tMsg.getObjectProperty("fileName").toString(), type);
+                releaseAnnotator(bytes, tMsg.getObjectProperty("fileName").toString(), type, "false");
             }
 
         } catch (JMSException e) {
@@ -238,8 +261,8 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
         return tempString;
     }
 
-    private void releaseAnnotator(byte[] bytes, String fileName, String type) {
-        broadcaster.sendMessage(bytes, fileName, type);
+    private void releaseAnnotator(byte[] bytes, String fileName, String type, String specificReceiver) {
+        broadcaster.sendMessage(bytes, fileName, type, specificReceiver);
     }
 
     public void makeFile(byte[] bytes, BytesMessage tMsg) {
