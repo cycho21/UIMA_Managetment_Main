@@ -105,22 +105,20 @@ public class Sender_Impl implements Sender {
     }
 
     public void sendAnnoCallBack() {
-        TextMessage msg = null;
+        TextMessage msg;
         try{
             msg = session.createTextMessage();
+
             Set keySet = AnnotatorRunningInfo.getAnnotatorList().keySet();
 
             for(Object s : keySet){
-
                 AnnotatorInfo annotatorInfo = AnnotatorRunningInfo.getAnnotatorList().get(s.toString());
-
                 msg.setObjectProperty("msgType", "getAnnotatorListCallBack");
                 msg.setObjectProperty("author", annotatorInfo.getAuthor());
                 msg.setObjectProperty("annotatorName", annotatorInfo.getName());
                 msg.setObjectProperty("version", annotatorInfo.getVersion());
                 msg.setObjectProperty("fileName", annotatorInfo.getFileName());
                 msg.setObjectProperty("modifiedDate", annotatorInfo.getModifiedDate());
-
                 producer.send(msg);
             }
 
