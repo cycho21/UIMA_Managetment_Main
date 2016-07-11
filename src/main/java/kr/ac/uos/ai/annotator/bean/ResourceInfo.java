@@ -12,7 +12,10 @@ public class ResourceInfo {
     private String freeMemoryPerc;
     private String freeCPUPerc;
 
-    public ResourceInfo() {
+    public ResourceInfo(String ip, String freeMemoryPerc, String freeCPUPerc) {
+        this.ip = ip;
+        this.freeMemoryPerc = freeMemoryPerc;
+        this.freeCPUPerc = freeCPUPerc;
     }
 
     public String getIp() {

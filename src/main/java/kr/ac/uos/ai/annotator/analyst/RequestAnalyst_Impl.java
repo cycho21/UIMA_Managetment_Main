@@ -3,6 +3,8 @@ package kr.ac.uos.ai.annotator.analyst;
 import kr.ac.uos.ai.annotator.activemq.BroadCaster_Impl;
 import kr.ac.uos.ai.annotator.activemq.Sender_Impl;
 import kr.ac.uos.ai.annotator.analyst.interfaces.RequestAnalyst;
+import kr.ac.uos.ai.annotator.bean.Resource;
+import kr.ac.uos.ai.annotator.bean.ResourceInfo;
 import kr.ac.uos.ai.annotator.bean.protocol.AnnotatorInfo;
 import kr.ac.uos.ai.annotator.bean.protocol.Job;
 import kr.ac.uos.ai.annotator.bean.protocol.MsgType;
@@ -104,10 +106,12 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
     private void getResourceFromNode(Message message) {
         TextMessage tMsg = (TextMessage) message;
         try {
+
             String freeMemoryPerc = message.getObjectProperty("freeMemoryPerc").toString();
             String freeCPU = message.getObjectProperty("freeCPUPerc").toString();
+            String ip = message.getObjectProperty("ip").toString();
 
-
+            Resource.getResourceInfoMap().put(ip, new ResourceInfo(ip, freeMemoryPerc, freeCPU));
 
         } catch (JMSException e) {
             e.printStackTrace();
