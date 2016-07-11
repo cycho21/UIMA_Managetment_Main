@@ -59,6 +59,9 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
         }
 
         switch (MsgType.valueOf(msgType)) {
+            case RESOURCE:
+                getResourceFromNode(message);
+                break;
             case GETANNOTATORLIST:
                 getAnnotatorList();
                 break;
@@ -98,6 +101,20 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
         }
     }
 
+    private void getResourceFromNode(Message message) {
+        TextMessage tMsg = (TextMessage) message;
+        try {
+            String freeMemoryPerc = message.getObjectProperty("freeMemoryPerc").toString();
+            String freeCPU = message.getObjectProperty("freeCPUPerc").toString();
+
+
+
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void getAnnotatorList() {
         sdr.sendAnnoCallBack();
     }
@@ -116,7 +133,6 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
         try {
             String annotatorName = tMsg.getObjectProperty("annotatorName").toString();
             String ip = tMsg.getObjectProperty("ip").toString();
-
         } catch (JMSException e) {
             e.printStackTrace();
         }
@@ -192,7 +208,9 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
 
     @Override
     public void getJobList(Message msg) {
-
+        for(String s : AnnotatorRunningInfo.getAnnotatorList().keySet()) {
+            sdr.sendUploadSeqCallBack("getJobList", s);
+        }
     }
 
     @Override
