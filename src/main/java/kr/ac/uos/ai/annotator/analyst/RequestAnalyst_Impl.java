@@ -107,16 +107,15 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
         TextMessage tMsg = (TextMessage) message;
         try {
 
-            String freeMemoryPerc = message.getObjectProperty("freeMemoryPerc").toString();
-            String freeCPU = message.getObjectProperty("freeCPUPerc").toString();
-            String ip = message.getObjectProperty("ip").toString();
+            String freeMemoryPerc = tMsg.getObjectProperty("freeMemoryPerc").toString();
+            String freeCPU = tMsg.getObjectProperty("freeCPUPerc").toString();
+            String ip = tMsg.getObjectProperty("ip").toString();
 
             Resource.getResourceInfoMap().put(ip, new ResourceInfo(ip, freeMemoryPerc, freeCPU));
 
         } catch (JMSException e) {
             e.printStackTrace();
         }
-
     }
 
     private void getAnnotatorList() {
