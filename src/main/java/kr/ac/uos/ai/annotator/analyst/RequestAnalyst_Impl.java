@@ -242,16 +242,13 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             tMsg.readBytes(bytes);
             makeFile(bytes, tMsg);
 
-            String type = addAnnotator(tMsg);
-
             if (tMsg.getObjectProperty("fileName").toString().contains("jar")) {
+                String type = addAnnotator(tMsg);
                 releaseAnnotator(bytes, tMsg.getObjectProperty("fileName").toString(), type, "false");
             }
-
         } catch (JMSException e) {
             e.printStackTrace();
         }
-
     }
 
     private String addAnnotator(BytesMessage tMsg) {
