@@ -132,7 +132,7 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
     }
 
     public void annoInfo(Message message) {
-        TextMessage tMsg = null;
+        TextMessage tMsg = (TextMessage) message;
         try {
             String annotatorName = tMsg.getObjectProperty("annotatorName").toString();
             String ip = tMsg.getObjectProperty("ip").toString();
@@ -227,9 +227,8 @@ public class RequestAnalyst_Impl implements RequestAnalyst {
             processForker.setInputFileName(protocol.getJob().getFileName());
             tempThread.start();
 
-            JobList.getJobList().get(protocol.getJob().getJobName()).setWatchdog(processForker.getWatcher());
-            JobList.getJobList().get(protocol.getJob().getJobName()).setIsExecute(true);
-
+//            JobList.getJobList().get(protocol.getJob().getJobName()).setWatchdog(processForker.getWatcher());
+//            JobList.getJobList().get(protocol.getJob().getJobName()).setIsExecute(true);
         }
     }
 
